@@ -2,11 +2,10 @@ missing
 install-sh
 INSTALL
 COPYING
+Makefile
 aclocal.m4
 autom4te.cache
-Makefile
 depcomp
-Makefile.in
 config.status
 config.log
 .*.swp
@@ -16,3 +15,5 @@ config.log
 *.orig
 *.o
 *.patch
+fidinventor
+.deps
