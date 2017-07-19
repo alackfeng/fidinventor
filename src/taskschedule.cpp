@@ -6,6 +6,7 @@
 namespace fid {
 
 
+static int max_height = 100; //max height 500, init gensis block
 int CFidTask::call()
 {
         std::cout << "CFidTask::call() type " << this->type << std::endl;
@@ -19,6 +20,9 @@ int CFidTask::call()
 		if(height <= 0) { // height=0, from rpc block best height
 			height = fidHand.getBlockCount();
 		}
+
+		// max height 500
+		//height = height>max_height?max_height:height;
 
 		//height = 5; // for test
 		this->height = height; // set current task block best height, return caller
@@ -145,9 +149,15 @@ void CFidTaskSchedule::work()
 		}
 		int diff = (bktimelast!=0 && bktime!=0)?((bktimelast-bktime)*1000*4/5):adjusttime; // - (t2-t1);
 		std::cout << "CFidTaskSchedule::Thread callTask diff: " << diff << ", bktime " << bktime << ", last " << bktimelast << ". end...." << std::endl;
+		
+		//if((GetTime()-t1) > 64*1000 ) {
+		//	diff = adjusttime;
+		//}
+		if(bktimelast!=0) {
+			bktime = bktimelast;
+			t1 = GetTime(); //boost::posix_time::second_clock::local_time();
+		}
 		boost::this_thread::sleep(boost::posix_time::milliseconds(bContinue?adjusttime:diff)); // last block 2/3 first, later adjusttime
-		t1 = GetTime(); //boost::posix_time::second_clock::local_time();
-		if(bktimelast!=0) bktime = bktimelast;
 	}
 }
 int CFidTaskSchedule::registerTask(TaskType_t type, const string &command)

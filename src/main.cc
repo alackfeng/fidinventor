@@ -11,8 +11,8 @@
 static int bQuit = 1;
 
 static std::string dbInstance = "fidchain";
-static std::string user = "root";
-static std::string passwd = "";
+static std::string user = "fidchain"; //"root";
+static std::string passwd = "123123";
 static std::string dbAdress = "127.0.0.1";
 
 fid::CFidTaskSchedule* pTaskSched = NULL;

@@ -5,26 +5,11 @@ namespace fid {
 
 CFidTransaction::CFidTransaction()
 :txid(""), version(1), time(1), locktime(1), vin(""), vout(""), amount(0.000000), 
-confirmations(0), generated(0), blockhash(""), blockindex(-1), blocktime(0), timereceived(0), details("blockchain fid")
+confirmations(0), generated(0), blockhash(""), blockindex(-1), blocktime(0), timereceived(0), details("blockchain fid"),
+type('T')
 {
-	string          txid;           // tx id
-        int             version;        // tx version
-        fidtime         time;           // tx time
-        fidtime         locktime;       // tx locktime
-        //vector<CFidTxVin>     vin;            // tx vin params
-        //vector<CFidTxVout>    vout;           // tx vout params
-        string          vin;            // tx vin params
-        string          vout;           // tx vout params
-        double          amount;         // tx amount value
-        int             confirmations;  // tx confirmations count
-        bool            generated;      // tx generated
-        string          blockhash;      // tx belongs to block
-        int             blockindex;     // tx belongs to blockindex
-        fidtime         blocktime;      // tx block time
-        fidtime         timereceived;   // tx received time
-        //vector<CFidTxDetails> details;        // tx details...
-        string          details;        // tx details...
-
+	vins.clear();
+	vouts.clear();
 }
 
 int CFidTransaction::checkValidy()
@@ -34,4 +19,49 @@ int CFidTransaction::checkValidy()
 	return 1;
 }
 
+std::string CFidTransaction::toString() const
+{
+	std::cout << "CFidTransaction::++++++++++++++++++++++++++++++++++++++++++ start~"
+        << "txid(" << txid << "), "
+        << "confirmations(" << confirmations << "), "
+        << "time(" << time << "), "
+        << "locktime(" << locktime << "), "
+        << "version(" << version << "), "
+        << "amount(" << amount << "), "
+        << "generated(" << generated << "), "
+        << "blockhash(" << blockhash << "), "
+        << "blockindex(" << blockindex << "), "
+        << "blocktime(" << blocktime << "), "
+        << "timereceived(" << timereceived << "), "
+        << "type(" << type << "), "
+        << "vin(" << vin << "), "
+        << "vout(" << vout << "), "
+        << "CFidBlock::++++++++++++++++++++++++++++++++++++++++++  over~"
+        << std::endl;
+
+	return "";
 }
+void CFidTransaction::clear()
+{
+	txid = "";
+	type = 'T';
+	version = 0;
+	time = 0;
+	locktime = 0;
+	vin = "";
+	vout = "";
+	amount = 0;
+	confirmations = 0;
+	generated = 0;
+	blockhash = "";
+	blockindex = 0;
+	blocktime = 0;
+	timereceived = 0;
+	details = "";
+	vins.clear();
+	vouts.clear();
+}
+
+}
+
+

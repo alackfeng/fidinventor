@@ -192,7 +192,7 @@ int CFidHandler::switchTx(CFidTask &task, CFidTransaction &tx)
 
         const json_spirit::Value& confirmations = find_value(obj, "confirmations");
         if(confirmations.type() == json_spirit::int_type)
-                tx.confirmations = confirmations.get_int();
+                tx.confirmations = confirmations.get_uint64();
 
         const json_spirit::Value& timereceived = find_value(obj, "timereceived");
         if(timereceived.type() == json_spirit::int_type)
@@ -254,12 +254,12 @@ vector<string> CFidHandler::switchBk(CFidTask &task, CFidBlock &bk)
         }
 
 	// 
-        bk.confirmations      	= find_value(obj, "confirmations").get_int();
+        bk.confirmations      	= find_value(obj, "confirmations").get_uint64();
         bk.size     		= find_value(obj, "size").get_int();
-        bk.height     		= find_value(obj, "height").get_int();
+        bk.height     		= find_value(obj, "height").get_uint64();
         bk.version      	= find_value(obj, "version").get_int();
 
-        bk.time         	= find_value(obj, "time").get_int();
+        bk.time         	= find_value(obj, "time").get_int64();
         bk.nonce         	= find_value(obj, "nonce").get_int();
         bk.entropybit         	= find_value(obj, "entropybit").get_int();
 

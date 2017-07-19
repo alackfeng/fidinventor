@@ -1,11 +1,11 @@
 //
 #include "block.h"
-#include <iostream>
 
+namespace fid {
 
 std::string CFidBlock::toString() const
 {
-	std::cout << "CFidBlock ~"
+	std::cout << "CFidBlock::++++++++++++++++++++++++++++++++++++++++++ start~"
 	<< "hash(" << hash << "), "
 	<< "confirmations(" << confirmations << "), "
 	<< "size(" << size << "), "
@@ -26,6 +26,7 @@ std::string CFidBlock::toString() const
 	<< "entropybit(" << entropybit << "), "
 	<< "modifier(" << modifier << "), "
 	<< "tx(" << tx << "), "
+	<< "CFidBlock::++++++++++++++++++++++++++++++++++++++++++  over~"
 	<< std::endl;
 	return "";
 }
@@ -57,7 +58,8 @@ void CFidBlock::clear() {
 	entropybit = 0;
 	modifier = "";
 	tx = "";
-	
+	signature = "";
+	vtx.clear();
 }
 
-
+}
