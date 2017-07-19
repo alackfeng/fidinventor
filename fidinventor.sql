@@ -32,7 +32,7 @@ CREATE TABLE `fidchain`.`blocktransaction` (
     	`tx_timereceived` TIMESTAMP DEFAULT '0000-00-00 00:00:00' COMMENT 'block transaction timereceived',
     	`tx_details` BLOB DEFAULT NULL COMMENT 'block transaction details',
     	`create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'table record create time',
-    	`modify_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'table record modify time',
+    	`modify_time` TIMESTAMP DEFAULT '0000-00-00 00:00:00' COMMENT 'table record modify time',
     	PRIMARY KEY (`seq_id`),
 	UNIQUE KEY block_tx_key (`tx_id`),
 	INDEX block_tx_index (`tx_id`, `tx_blockhash`)
@@ -62,7 +62,7 @@ CREATE TABLE `fidchain`.`blockinfo` (
     	`bk_modifier` VARCHAR(256) NOT NULL COMMENT 'block modifier',
 	`bk_vtx` BLOB DEFAULT NULL COMMENT 'block transaction list',
     	`create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'table record create time',
-    	`modify_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'table record modify time',
+    	`modify_time` TIMESTAMP DEFAULT '0000-00-00 00:00:00' COMMENT 'table record modify time',
     	PRIMARY KEY (`seq_id`),
 	UNIQUE KEY block_tx_key (`bk_hash`)
 );
