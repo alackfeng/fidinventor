@@ -7,11 +7,18 @@
 #include <string>
 #include <vector>
 
-
+// json be related
+#include "json/json_spirit_reader_template.h"
+#include "json/json_spirit_utils.h"
+#include "json/json_spirit_writer_template.h"
 
 using namespace std;
 
 
 typedef int64_t 	fidtime; 	// Fid time
 typedef uint64_t 	fidint; 	// Fid long long
+
+
+
+
 #endif

@@ -39,7 +39,11 @@ public:
    	int insertTx(const CFidTransaction &tx);
 	int queryTest();
 	int queryBlockCount();
-   
+private:
+	int insertTxVout(const CFidTransaction &tx, const CFidTxVout &txvout);
+	int insertTxVin(const CFidTransaction &tx, const CFidTxVin& txvin);
+	int queryBlockTxVoutByTxidAndN(const string& txid, int n, double& vinvalue, string& vinaddress);
+  
 private:
 	mysqlpp::Connection m_con;
 

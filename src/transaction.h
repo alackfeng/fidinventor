@@ -14,7 +14,7 @@ public:
 	string 		sasm;		// tx vout script opcode
 	int		reqSigs;	// tx vout script req signature
 	string		type;		// tx vout script type
-	vector<string>	addresses;	// tx vout addresses list, to blob
+	string		addresses;	// tx vout addresses list, to blob
 };
 
 /* script sigatures  */
@@ -27,28 +27,21 @@ public:
 class CFidTxVin {
 public:
 	char		type;		// transaction type: pow | pos | trans
-	union {
-	struct pow{ // pow
-		string          coinbase; 	// minting coinbase tx
-		int             sequence; 	// minting sequence
-	};
-	typedef struct pos_s{ // pos
-		string		txid;
-		int		vout;
-		CFidTxScriptSig scriptSig;
-		int		sequence;	
-	}pos_t;
-	}u;
+	
+	string		txid;		// prev txid or minting coinbase tx 
+	int		vout;
+	CFidTxScriptSig scriptSig;
+	fidint		sequence;	// minting sequence
 
-	fidint			value; 		// tx vin amount value
-	vector<string>		addresses;	// tx vin addresses list ?, to blob
+	double		value; 		// tx vin amount value
+	string		addresses;	// tx vin addresses list ?, to blob
 };
 
 class CFidTxVout {
 public:
 	char		type;		// transaction type: pow | pos | trans
 	
-	fidint			value; 		// tx vout amount value
+	double			value; 		// tx vout amount value
 	int			n;		// tx vout position
 	CFidTxScriptPubKey	scriptPubKey;	// tx vout script info
 };

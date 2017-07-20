@@ -67,6 +67,7 @@ json_spirit::Object CFidRpcWrap::callRPC(string cmd, json_spirit::Array params)
 }
 
 
+
 int CFidDbWrap::insertTx(const CFidTransaction &tx)
 {
 	CMysqlDb* myDB = CMysqlDb::getinitance();
@@ -156,54 +157,82 @@ int CFidHandler::switchTx(CFidTask &task, CFidTransaction &tx)
         if (result.type() != json_spirit::obj_type)
                 return -1;
         const json_spirit::Object& obj = result.get_obj();
+	
+	getJsonObjValue(obj, "txid", tx.txid);
+	getJsonObjValue(obj, "version", tx.version);
+	getJsonObjValue(obj, "time", tx.time);
+	getJsonObjValue(obj, "locktime", tx.locktime);
+	getJsonObjValue(obj, "amount", tx.amount);
+	getJsonObjValue(obj, "blockhash", tx.blockhash);
+	getJsonObjValue(obj, "confirmations", tx.confirmations);
+	getJsonObjValue(obj, "timereceived", tx.timereceived);
+	getJsonObjValue(obj, "details", tx.details);
+	getJsonObjValue(obj, "vin", tx.vin);
+	getJsonObjValue(obj, "vout", tx.vout);
 
-        // txid
-        const json_spirit::Value& txid = find_value(obj, "txid");
-        if(txid.type() == json_spirit::str_type) {
-                //std::cout << "txid " << txid.get_str() << std::endl;
-                tx.txid = txid.get_str();
-        }
+	// tx vin list details to  CFidTxVin
+	json_spirit::Array vinArray; 
+	getJsonObjValue(obj, "vin", vinArray);
+	
+	// tx vout list details to  CFidTxVout
+	json_spirit::Array voutArray;
+	getJsonObjValue(obj, "vout", voutArray);
 
-        tx.version      = find_value(obj, "version").get_int();
-        tx.time         = find_value(obj, "time").get_int();
-        tx.locktime     = find_value(obj, "locktime").get_int();
+	for(int i=0; i<vinArray.size(); i++) {
+		const json_spirit::Object vinObj = vinArray[i].get_obj();
+		CFidTxVin txvin;
+		// pow sequence or coinbase
+		getJsonObjValue(vinObj, "sequence", txvin.sequence); // or pow sequence
+		if(i==0 && 0 == getJsonObjValue(vinObj, "coinbase", txvin.txid) && txvin.txid != "") {
+			txvin.type = 'W';
+			tx.vins.push_back(txvin);
+			continue;
+		}
+		// other pos
+		txvin.type = 'S';
+		getJsonObjValue(vinObj, "txid", txvin.txid); // or pow coinbase
+		getJsonObjValue(vinObj, "vout", txvin.vout);
+		
+		json_spirit::Object script;
+		getJsonObjValue(vinObj, "scriptSig", script); 
+		getJsonObjValue(script, "hex", txvin.scriptSig.hex);
+		getJsonObjValue(script, "asm", txvin.scriptSig.sasm);
+		tx.vins.push_back(txvin);
+	}
+	
 
-        const json_spirit::Value& vin = find_value(obj, "vin");
-        if(vin.type() == json_spirit::array_type) {
-                const json_spirit::Array& array = vin.get_array();
-                tx.vin = json_spirit::write_string(vin, true);
-                //const json_spirit::Value& coinbase = find_value(array[0].get_obj(), "coinbase");
-                //std::cout << "vin " << coinbase.get_str() <<  std::endl;
-        }
+	for(int j=0; j<voutArray.size(); j++) {
+		const json_spirit::Object voutObj = voutArray[j].get_obj();
+		CFidTxVout txvout;
+		getJsonObjValue(voutObj, "value", txvout.value);
+		if(j==0 && txvout.value == 0.00000000)
+			txvout.type = 'W';
+		else if(j==1 && txvout.value != 0.00000000)
+			txvout.type = 'S';
+		else	txvout.type = 'T';
+		
+		getJsonObjValue(voutObj, "n", txvout.n);
 
-        const json_spirit::Value& vout = find_value(obj, "vout");
-        if(vout.type() == json_spirit::array_type) {
-                tx.vout = json_spirit::write_string(vout, true);
-                //std::cout << "vout " << tx.vout << std::endl;
-        }
+		json_spirit::Object script;
+		getJsonObjValue(voutObj, "scriptPubKey", script);
+		getJsonObjValue(script, "asm", txvout.scriptPubKey.sasm);
+		getJsonObjValue(script, "reqSigs", txvout.scriptPubKey.reqSigs);
+		getJsonObjValue(script, "type", txvout.scriptPubKey.type);
 
-        const json_spirit::Value& amount = find_value(obj, "amount");
-        if(amount.type() == json_spirit::real_type) {
-                tx.amount = amount.get_real();
-        }
-        //tx.generated  = find_value(obj, "generated").get_int();
-        tx.blockhash    = find_value(obj, "blockhash").get_str();
-        //tx.blockindex         = find_value(obj, "blockindex").get_int();
+		json_spirit::Array address;
+		getJsonObjValue(script, "addresses", address);
+		if(address.size() >= 1)
+			txvout.scriptPubKey.addresses = address[0].get_str();
+		//getJsonObjValue(script, "addresses", txvout.scriptPubKey.addresses);
+		tx.vouts.push_back(txvout);
+	}
 
-        const json_spirit::Value& confirmations = find_value(obj, "confirmations");
-        if(confirmations.type() == json_spirit::int_type)
-                tx.confirmations = confirmations.get_uint64();
-
-        const json_spirit::Value& timereceived = find_value(obj, "timereceived");
-        if(timereceived.type() == json_spirit::int_type)
-                tx.timereceived = timereceived.get_int();
-
-	// details      
-        const json_spirit::Value& details = find_value(obj, "details");
-        if(details.type() == json_spirit::array_type) {
-                tx.details = json_spirit::write_string(details, true);
-                //std::cout << "details " << tx.details << std::endl;
-        }
+	// IsCoinBase() : (vin.size() == 1 && vin[0].prevout.IsNull() && vout.size() >= 1)	
+	// IsCoinStake() : (vin.size() > 0 && (!vin[0].prevout.IsNull()) && vout.size() >= 2 && vout[0].IsEmpty())
+	if(tx.vins.size() > 0 && !(tx.vouts[0].value == 0.00000000) && tx.vouts.size() >=2 && tx.vouts[0].value == 0.00000000)
+		tx.type = 'S';
+	if(tx.vins.size() == 1 && tx.vouts[0].value == 0.00000000 && tx.vouts.size() >=1)
+		tx.type = 'W';
 
 	return 0;
 }
