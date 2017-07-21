@@ -1,8 +1,8 @@
 
-#include <iostream>
 
 #include <signal.h>
 
+#include "config-in.h"
 //#include "rpcclient.h"
 #include "taskschedule.h"
 #include "mysqldb/mysqldb.h"
@@ -21,18 +21,15 @@ CMysqlDb* myDB = NULL;
 int height = 0;		// block height
 int once = 1;		// only run once, tash thread for init block gensis to bestblock
 
-map<string, string> mapArgs;
+//map<string, string> mapArgs;
 int initConfig(int argc, char* argv[]) 
 {
-	if(argc != 4) {
-		std::cout << "Help cmd: fidinventor fidchainrpc20 DSBs3pKSdpiTAPDms 139.224.13.20 " << std::endl;
+	if(argc != 2) {
+		std::cout << "Help cmd: <fidinventor /opt/fidinventor/fidinventor.conf> " << std::endl;
+		generate_defaultfidconfig();
 		return -1;
 	}
-	// fidinventor fidchainrpc20 DSBs3pKSdpiTAPDms 139.224.13.20
-	mapArgs.insert(std::make_pair<std::string, std::string>("-rpcuser", std::string(argv[1]))); //"fidchainrpc20"));
-        mapArgs.insert(std::make_pair<std::string, std::string>("-rpcpassword", std::string(argv[2]))); //"DSBs3pKSdpiTAPDms"));
-        mapArgs.insert(std::make_pair<std::string, std::string>("-rpcconnect", std::string(argv[3]))); //"139.224.13.20"));
-	return 0;
+	return parse_fidconfig(""); //argv[1]);
 }
 
 static void HandleSIGTERM(int)
@@ -61,7 +58,8 @@ int initGensisBlock()
 	}
 	
 	myDB = CMysqlDb::getinitance();
-        myDB->initDb(dbInstance,user,passwd,dbAdress);
+        myDB->initDb();
+	//dbInstance,user,passwd,dbAdress);
 	height =  myDB->queryBlockCount();
 	std::cout << "initGensisBlock() ~ block count: " << height << std::endl;
 

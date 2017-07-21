@@ -74,7 +74,8 @@ int CFidDbWrap::insertTx(const CFidTransaction &tx)
 	// test
 	//myDB->queryTest();
 	
-	myDB->initDb(dbInstance,user,passwd,dbAdress);
+	//myDB->initDb(dbInstance,user,passwd,dbAdress);
+	myDB->initDb();
 
 	return myDB->insertTx(tx);
 }
@@ -229,10 +230,12 @@ int CFidHandler::switchTx(CFidTask &task, CFidTransaction &tx)
 
 	// IsCoinBase() : (vin.size() == 1 && vin[0].prevout.IsNull() && vout.size() >= 1)	
 	// IsCoinStake() : (vin.size() > 0 && (!vin[0].prevout.IsNull()) && vout.size() >= 2 && vout[0].IsEmpty())
-	if(tx.vins.size() > 0 && !(tx.vouts[0].value == 0.00000000) && tx.vouts.size() >=2 && tx.vouts[0].value == 0.00000000)
+	cout << "=============================>>>>>>>>>>>>>>> vouts,size" << tx.vouts.size() << ", value[0]=" << tx.vouts[0].value << ", bool:" << (tx.vouts[0].value == 0.00000000) << endl;
+	if(tx.vins.size() > 0 && !(tx.vins[0].type == 'W') && tx.vouts.size() >=2 && tx.vouts[0].value == 0.00000000)
 		tx.type = 'S';
-	if(tx.vins.size() == 1 && tx.vouts[0].value == 0.00000000 && tx.vouts.size() >=1)
+	else if(tx.vins.size() == 1 && tx.vins[0].type == 'W' && tx.vouts.size() >=1)
 		tx.type = 'W';
+	else 	tx.type = 'S';
 
 	return 0;
 }

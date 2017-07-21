@@ -16,6 +16,7 @@ taskschedule.cpp \
 wrap.cpp \
 block.cpp \
 mysqldb/mysqldb.cpp \
+config.cpp \
 thread.h \
 rpcprotocol.h \
 rpcclient.h \

@@ -58,6 +58,25 @@ int CMysqlDb::initDb(const string &dbInstance,const string& user,const string &p
 	return 0;
 }
 
+int CMysqlDb::initDb()
+{
+	if(inited) {
+                return 1;
+        }
+	m_con.set_option(new mysqlpp::SetCharsetNameOption("gbk"));
+
+	cout << "CMysqlDb::initDb() - " << get_fidconfig("-database") << endl;
+	if(!m_con.connect(get_fidconfig("-database").c_str(), get_fidconfig("-dburl").c_str(), get_fidconfig("-dbname").c_str(), get_fidconfig("-dbpasswd").c_str()))
+        {
+           cout<< "CMysqlDb::initDb() connect mysqldb failed!!" <<endl;
+           return -1;
+        }
+
+	cout<< "CMysqlDb::initDb() connect mysqldb initDB ok!!" <<endl;
+	inited = 1;
+	return 0;
+}
+
 
 int CMysqlDb::insertBlock(const CFidBlock &block)
 {
@@ -94,15 +113,15 @@ int CMysqlDb::insertBlock(const CFidBlock &block)
                 query.template_defaults["proofhash"] = block.proofhash.c_str();
                 query.template_defaults["entropybit"] = block.entropybit;
                 query.template_defaults["modifier"] = block.modifier.c_str();
-                query.template_defaults["vtx"] = block.tx.c_str();
+                query.template_defaults["vtx"] = mysqlpp::null; 	// not use block.tx.c_str();
 
 		query.execute();
-                cout << "CMysqlDb::insertBlock() ~ inserted... " << m_con.count_rows("block") << " rows." << endl;
+                cout << "CMysqlDb::insertBlock() ~ inserted... " << m_con.count_rows("block") << " rows. block: " << block.hash << ", height: " << block.height  << endl;
 		
 
 	} catch (const mysqlpp::BadQuery& er) {
                 // Handle any query errors
-                cerr << endl << "Query error: " << er.what() << endl;
+                cerr << endl << "Insert error: " << er.what() << endl;
                 return 1;
         } catch (const mysqlpp::BadConversion& er) {
                 // Handle bad conversions
@@ -120,20 +139,43 @@ int CMysqlDb::insertBlock(const CFidBlock &block)
 
 }
 
-int CMysqlDb::queryBlockTxVoutByTxidAndN(const string& txid, int n, double& vinvalue, string& vinaddress)
+int CMysqlDb::updateBlockTxVoutByTxidAndN(const CFidTransaction &tx, const CFidTxVin& txvin)
 {
 
-        mysqlpp::Query query = m_con.query("select bktx_vinvalue,bktx_vinaddresses from blocktx_vout where bktx_txid=%0q:txid and bktx_voutn=%1q:voutn");
-	query.parse();
-	query.template_defaults["txid"] = txid.c_str();
-	query.template_defaults["voutn"] = n;
-        if(mysqlpp::StoreQueryResult res = query.store()) {
-                vinvalue = res[0][0];
-		//vinaddress = res[0][1];
-                cout << "CMysqlDb::queryBlockTxVoutByTxidAndN() ~ input:"<< n << ">" << txid << "return value: " << vinvalue << ", address:" << vinaddress << endl;
-		return 1;
+	try {
+		
+		cout << "CMysqlDb::updateBlockTxVoutByTxidAndN() ~ Update <fidchain.blocktx_vin> table, from set <fidchain.blocktx_vout>..." << endl;
+
+		mysqlpp::Query query = m_con.query("update blocktx_vin vin "
+			"inner join (select bktx_voutaddresses as address,bktx_voutvalue as amount from blocktx_vout where bktx_txid=%0q:prevtxid and bktx_voutn=%1q:prevn) tmp "
+			"set vin.bktx_vinvalue=tmp.amount, vin.bktx_vinaddresses=tmp.address where vin.bktx_txid=%2q:txid;");
+
+		query.parse();
+		query.template_defaults["prevtxid"] = txvin.txid.c_str();
+		query.template_defaults["prevn"] = txvin.vout;
+		query.template_defaults["txid"] = tx.txid.c_str();
+
+		query.execute();
+		cout << "CMysqlDb::updateBlockTxVoutByTxidAndN() ~ updated... txid: " << tx.txid << endl;
+
+
+        } catch (const mysqlpp::BadQuery& er) {
+                // Handle any query errors
+                cerr << endl << "Update error: " << er.what() << endl;
+                return 1;
+        } catch (const mysqlpp::BadConversion& er) {
+                // Handle bad conversions
+                cerr << endl << "Conversion error: " << er.what() << endl <<
+                                "\tretrieved data size: " << er.retrieved <<
+                                ", actual size: " << er.actual_size << endl;
+                return 2;
+        } catch (const mysqlpp::Exception& er) {
+                // Catch-all for any other MySQL++ exceptions
+                cerr << endl << "Error: " << er.what() << endl;
+                return 3;
         }
-        return 0;
+
+	return 0;
 }
 
 int CMysqlDb::insertTxVout(const CFidTransaction &tx, const CFidTxVout &txvout)
@@ -158,12 +200,12 @@ int CMysqlDb::insertTxVout(const CFidTransaction &tx, const CFidTxVout &txvout)
                 query.template_defaults["voutsttype"] = txvout.scriptPubKey.type.c_str();
 
 		query.execute();
-                cout << "CMysqlDb::insertTxVout() ~ inserted... " << m_con.count_rows("blocktx_vout") << " rows." << endl;
+                cout << "CMysqlDb::insertTxVout() ~ inserted... " << m_con.count_rows("blocktx_vout") << " rows. txid: " << tx.txid << endl;
 
 
         } catch (const mysqlpp::BadQuery& er) {
                 // Handle any query errors
-                cerr << endl << "Query error: " << er.what() << endl;
+                cerr << endl << "Insert error: " << er.what() << endl;
                 return 1;
         } catch (const mysqlpp::BadConversion& er) {
                 // Handle bad conversions
@@ -181,10 +223,6 @@ int CMysqlDb::insertTxVout(const CFidTransaction &tx, const CFidTxVout &txvout)
 int CMysqlDb::insertTxVin(const CFidTransaction &tx, const CFidTxVin& txvin)
 {
 	try {
-		// get vin amount and address
-		double value;
-		string address;
-		queryBlockTxVoutByTxidAndN(txvin.txid, txvin.vout, value, address);
 
 		cout << "CMysqlDb::insertTxVin() ~ Insert <fidchain.blocktx_vin> table..." << endl;
 		mysqlpp::Query query = m_con.query();
@@ -200,17 +238,20 @@ int CMysqlDb::insertTxVin(const CFidTransaction &tx, const CFidTxVin& txvin)
                 query.template_defaults["vinstasm"] = txvin.scriptSig.hex.c_str();
                 query.template_defaults["vinsthex"] = txvin.scriptSig.sasm.c_str();
                 query.template_defaults["vinsequence"] = txvin.sequence;
-                query.template_defaults["vinvalue"] = value != 0.00000000 ? value : txvin.value;
-                query.template_defaults["vinaddresses"] = address != "" ? address.c_str() : txvin.addresses.c_str();
+                query.template_defaults["vinvalue"] = txvin.value;
+                query.template_defaults["vinaddresses"] = txvin.addresses.c_str();
                 query.template_defaults["type"] = txvin.type;
 
                 query.execute();
-                cout << "CMysqlDb::insertTxVin() ~ inserted... " << m_con.count_rows("blocktx_vin") << " rows." << endl;
+                cout << "CMysqlDb::insertTxVin() ~ inserted... " << m_con.count_rows("blocktx_vin") << " rows. txid: " << tx.txid << endl;
 
+
+		// update bktx_vin.amount and .address from select bktx_vout
+		updateBlockTxVoutByTxidAndN(tx, txvin);
 
         } catch (const mysqlpp::BadQuery& er) {
                 // Handle any query errors
-                cerr << endl << "Query error: " << er.what() << endl;
+                cerr << endl << "Insert error: " << er.what() << endl;
                 return 1;
         } catch (const mysqlpp::BadConversion& er) {
                 // Handle bad conversions
@@ -242,8 +283,8 @@ int CMysqlDb::insertTx(const CFidTransaction &tx)
 		query.template_defaults["time"] = DateTimeStrFormat(tx.time).c_str();
 		query.template_defaults["locktime"] = DateTimeStrFormat(tx.locktime+1).c_str();
 		query.template_defaults["type"] = tx.type;
-		query.template_defaults["vin"] = tx.vin.c_str();
-		query.template_defaults["vout"] = tx.vout.c_str();
+		query.template_defaults["vin"] = mysqlpp::null; 	// not use tx.vin.c_str();
+		query.template_defaults["vout"] = mysqlpp::null; 	// not use tx.vout.c_str();
 		query.template_defaults["amount"] = tx.amount;
 		query.template_defaults["confirmations"] = tx.confirmations;
 		query.template_defaults["generated"] = mysqlpp::null;
@@ -256,7 +297,7 @@ int CMysqlDb::insertTx(const CFidTransaction &tx)
 	//		"5038c6435cfdfbbc292510318719420482bc3d6de076cf5dc75cf86c22fa1526", mysqlpp::sql_timestamp("2006-03-06 00:00:00"), mysqlpp::sql_timestamp("2006-03-06 00:00:00"), "blocktransaction");
 
 		query.execute();
-		cout << "CMysqlDb::insertTx() ~ inserted... " << m_con.count_rows("blocktransaction") << " rows." << endl;
+		cout << "CMysqlDb::insertTx() ~ inserted... " << m_con.count_rows("blocktransaction") << " rows. txid: " << tx.txid << endl;
 
 		// for vin or vout details tables
 		for(int j=0; j<tx.vouts.size(); j++) {

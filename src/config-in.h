@@ -19,6 +19,9 @@ typedef int64_t 	fidtime; 	// Fid time
 typedef uint64_t 	fidint; 	// Fid long long
 
 
-
+extern map<string, string> mapArgs;
+void generate_defaultfidconfig();
+int parse_fidconfig(string path);
+string get_fidconfig(const string& key);
 
 #endif

@@ -24,7 +24,7 @@ int CFidTask::call()
 		// max height 500
 		//height = height>max_height?max_height:height;
 
-		//height = 5; // for test
+		//height = 500; // for test
 		this->height = height; // set current task block best height, return caller
 		std::cout << "CFidTask::call() type " << this->type << ", block height " << height << std::endl;
 
@@ -147,16 +147,30 @@ void CFidTaskSchedule::work()
 			std::cout << "CFidTaskSchedule::Thread callTask error code(return): " << iRet << std::endl;
 			break;
 		}
-		int diff = (bktimelast!=0 && bktime!=0)?((bktimelast-bktime)*1000*4/5):adjusttime; // - (t2-t1);
-		std::cout << "CFidTaskSchedule::Thread callTask diff: " << diff << ", bktime " << bktime << ", last " << bktimelast << ". end...." << std::endl;
+
+		int64_t t2 = GetTime();
 		
-		//if((GetTime()-t1) > 64*1000 ) {
-		//	diff = adjusttime;
-		//}
+		int diff = adjusttime; // - (t2-t1);
+		if(bktimelast!=0 && bktime!=0) {
+			int bkdiff = (bktimelast-bktime) < 0 ? 64 : (bktimelast-bktime);
+			diff = bkdiff-(t2-t1);
+			if(diff < 0 || diff > bkdiff) 
+				diff = adjusttime;
+			else
+				diff = (bkdiff - diff) * 1000 * 4/5; // 64s * 4/5 again, default 1s per once
+		}
+		#if 0
+		if(bContinue == 1 && (bktimelast == 0 || bktime==0)) {
+			diff = 64  * 1000 * 4/5; //
+		}
+		#endif
+		std::cout << "CFidTaskSchedule::Thread callTask diff: " << diff << ", bktime-diff=" << bktimelast-bktime << ", last " << bktimelast << ", local diff=" << t2-t1 << ". end...." << std::endl;
+		
 		if(bktimelast!=0) {
 			bktime = bktimelast;
 			t1 = GetTime(); //boost::posix_time::second_clock::local_time();
 		}
+
 		boost::this_thread::sleep(boost::posix_time::milliseconds(bContinue?adjusttime:diff)); // last block 2/3 first, later adjusttime
 	}
 }

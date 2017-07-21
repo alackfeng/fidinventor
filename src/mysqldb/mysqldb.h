@@ -30,6 +30,7 @@ public:
 	~CMysqlDb();
 
    	int initDb(const string &dbInstance,const string& user,const string &passwd,const string& dbaddress );
+   	int initDb();
 
     	static CMysqlDb* getinitance();
     
@@ -42,7 +43,7 @@ public:
 private:
 	int insertTxVout(const CFidTransaction &tx, const CFidTxVout &txvout);
 	int insertTxVin(const CFidTransaction &tx, const CFidTxVin& txvin);
-	int queryBlockTxVoutByTxidAndN(const string& txid, int n, double& vinvalue, string& vinaddress);
+	int updateBlockTxVoutByTxidAndN(const CFidTransaction &tx, const CFidTxVin& txvin);
   
 private:
 	mysqlpp::Connection m_con;

@@ -94,7 +94,8 @@ am_fidinventor_OBJECTS = fidinventor-main.$(OBJEXT) \
 	fidinventor-rpcclient.$(OBJEXT) fidinventor-utils.$(OBJEXT) \
 	fidinventor-transaction.$(OBJEXT) \
 	fidinventor-taskschedule.$(OBJEXT) fidinventor-wrap.$(OBJEXT) \
-	fidinventor-block.$(OBJEXT) fidinventor-mysqldb.$(OBJEXT)
+	fidinventor-block.$(OBJEXT) fidinventor-mysqldb.$(OBJEXT) \
+	fidinventor-config.$(OBJEXT)
 fidinventor_OBJECTS = $(am_fidinventor_OBJECTS)
 fidinventor_DEPENDENCIES =
 AM_V_P = $(am__v_P_@AM_V@)
@@ -268,6 +269,7 @@ taskschedule.cpp \
 wrap.cpp \
 block.cpp \
 mysqldb/mysqldb.cpp \
+config.cpp \
 thread.h \
 rpcprotocol.h \
 rpcclient.h \
@@ -369,6 +371,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fidinventor-block.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fidinventor-config.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fidinventor-main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fidinventor-mysqldb.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fidinventor-rpcclient.Po@am__quote@
@@ -532,6 +535,20 @@ fidinventor-mysqldb.obj: mysqldb/mysqldb.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='mysqldb/mysqldb.cpp' object='fidinventor-mysqldb.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fidinventor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fidinventor-mysqldb.obj `if test -f 'mysqldb/mysqldb.cpp'; then $(CYGPATH_W) 'mysqldb/mysqldb.cpp'; else $(CYGPATH_W) '$(srcdir)/mysqldb/mysqldb.cpp'; fi`
+
+fidinventor-config.o: config.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fidinventor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT fidinventor-config.o -MD -MP -MF $(DEPDIR)/fidinventor-config.Tpo -c -o fidinventor-config.o `test -f 'config.cpp' || echo '$(srcdir)/'`config.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/fidinventor-config.Tpo $(DEPDIR)/fidinventor-config.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='config.cpp' object='fidinventor-config.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fidinventor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fidinventor-config.o `test -f 'config.cpp' || echo '$(srcdir)/'`config.cpp
+
+fidinventor-config.obj: config.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fidinventor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT fidinventor-config.obj -MD -MP -MF $(DEPDIR)/fidinventor-config.Tpo -c -o fidinventor-config.obj `if test -f 'config.cpp'; then $(CYGPATH_W) 'config.cpp'; else $(CYGPATH_W) '$(srcdir)/config.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/fidinventor-config.Tpo $(DEPDIR)/fidinventor-config.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='config.cpp' object='fidinventor-config.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fidinventor_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fidinventor-config.obj `if test -f 'config.cpp'; then $(CYGPATH_W) 'config.cpp'; else $(CYGPATH_W) '$(srcdir)/config.cpp'; fi`
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

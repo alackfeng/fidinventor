@@ -33,11 +33,6 @@ using namespace json_spirit;
 
 Object CallRPC(const string& strMethod, const Array& params)
 {
-	#if 0
-	mapArgs.insert(std::make_pair<std::string, std::string>("-rpcuser", "fidchainrpc20"));
-	mapArgs.insert(std::make_pair<std::string, std::string>("-rpcpassword", "DSBs3pKSdpiTAPDms"));
-	mapArgs.insert(std::make_pair<std::string, std::string>("-rpcconnect", "139.224.13.20"));
-	#endif
     if (mapArgs["-rpcuser"] == "" && mapArgs["-rpcpassword"] == "")
         throw runtime_error(strprintf(
             ("You must set rpcpassword=<password> in the configuration file:\n%s\n"
@@ -74,7 +69,7 @@ Object CallRPC(const string& strMethod, const Array& params)
     string strRequest = JSONRPCRequest(strMethod, params, 1);
     string strPost = HTTPPost(strRequest, mapRequestHeaders);
     
-    //fprintf(stderr, "post: ===============%s\n", strPost.c_str());
+    fprintf(stderr, "post: ===============%s\n", strPost.c_str());
     stream << strPost << std::flush;
 
     // Receive HTTP reply status
