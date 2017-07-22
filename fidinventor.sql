@@ -11,10 +11,10 @@
 ## show variables like 'sql_mode';
 
 
-create database `fidchain`;
-use `fidchain`;
-DROP TABLE IF EXISTS `fidchain`.`blocktransaction`;
-CREATE TABLE `fidchain`.`blocktransaction` (
+create database `fidchainblock`;
+use `fidchainblock`;
+DROP TABLE IF EXISTS `fidchainblock`.`blocktransaction`;
+CREATE TABLE `fidchainblock`.`blocktransaction` (
 	 `seq_id` INT(10) NOT NULL AUTO_INCREMENT COMMENT 'auto increment sequence',
     `tx_id` VARCHAR(256) NOT NULL COMMENT 'block transaction txid',
 	 `tx_version` INT(1) DEFAULT NULL COMMENT 'block transaction version',
@@ -38,8 +38,8 @@ CREATE TABLE `fidchain`.`blocktransaction` (
 	 INDEX block_tx_index (`tx_id`, `tx_blockhash`)
 );
 
-DROP TABLE IF EXISTS `fidchain`.`block`;
-CREATE TABLE `fidchain`.`block` (
+DROP TABLE IF EXISTS `fidchainblock`.`block`;
+CREATE TABLE `fidchainblock`.`block` (
 	 `seq_id` INT(10) NOT NULL AUTO_INCREMENT COMMENT 'auto increment sequence',
     `bk_hash` VARCHAR(256) NOT NULL COMMENT 'block hash id',
 	 `bk_confirmations` INT(10) DEFAULT NULL COMMENT 'block confirmations',
@@ -67,8 +67,8 @@ CREATE TABLE `fidchain`.`block` (
 	 UNIQUE KEY block_info_key (`bk_hash`)
 );
 
-DROP TABLE IF EXISTS `fidchain`.`blocktx_vout`;
-CREATE TABLE `fidchain`.`blocktx_vout` (
+DROP TABLE IF EXISTS `fidchainblock`.`blocktx_vout`;
+CREATE TABLE `fidchainblock`.`blocktx_vout` (
 	 `seq_id` INT(10) NOT NULL AUTO_INCREMENT COMMENT 'auto increment sequence',
     `bktx_txid` VARCHAR(256) NOT NULL COMMENT 'block transaction txid',
     `bktx_blockhash` VARCHAR(256) DEFAULT NULL COMMENT 'block transaction belong to blockhash',
@@ -87,8 +87,8 @@ CREATE TABLE `fidchain`.`blocktx_vout` (
 	 INDEX blocktx_vout_index_address (`bktx_voutaddresses`)
 );
 
-DROP TABLE IF EXISTS `fidchain`.`blocktx_vin`;
-CREATE TABLE `fidchain`.`blocktx_vin` (
+DROP TABLE IF EXISTS `fidchainblock`.`blocktx_vin`;
+CREATE TABLE `fidchainblock`.`blocktx_vin` (
 	 `seq_id` INT(10) NOT NULL AUTO_INCREMENT COMMENT 'auto increment sequence',
     `bktx_txid` VARCHAR(256) NOT NULL COMMENT 'block transaction txid',
     `bktx_blockhash` VARCHAR(256) DEFAULT NULL COMMENT 'block transaction belong to blockhash',

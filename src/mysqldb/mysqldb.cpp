@@ -65,8 +65,8 @@ int CMysqlDb::initDb()
         }
 	m_con.set_option(new mysqlpp::SetCharsetNameOption("gbk"));
 
-	cout << "CMysqlDb::initDb() - " << get_fidconfig("-database") << endl;
-	if(!m_con.connect(get_fidconfig("-database").c_str(), get_fidconfig("-dburl").c_str(), get_fidconfig("-dbname").c_str(), get_fidconfig("-dbpasswd").c_str()))
+	cout << "CMysqlDb::initDb() - " << get_fidconfig("-dburl") << ", db: " << get_fidconfig("-database") << ", name: " << get_fidconfig("-dbname") << endl;
+	if(!m_con.connect(get_fidconfig("-database").c_str(), get_fidconfig("-dburl").c_str(), get_fidconfig("-dbname").c_str(), get_fidconfig("-dbpasswd").c_str(), atoi(get_fidconfig("-dbport"))))
         {
            cout<< "CMysqlDb::initDb() connect mysqldb failed!!" <<endl;
            return -1;

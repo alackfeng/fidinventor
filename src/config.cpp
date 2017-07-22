@@ -19,10 +19,11 @@ void generate_defaultfidconfig()
 	ptree items;
 
 	ptree item_mysql;
-	item_mysql.put("database",	"fidchain");
+	item_mysql.put("database",	"fidchainblock");
 	item_mysql.put("dbname",	"fidchain");
 	item_mysql.put("dbpasswd",	"123123");
 	item_mysql.put("dburl",		"127.0.0.1");
+	item_mysql.put("dbport",	"3306");
 	items.push_back(std::make_pair("mysql", item_mysql));
 	//get_fidconfig("database"), get_fidconfig("dbname"), get_fidconfig("dbpasswd"), get_fidconfig("dburl")
 
@@ -56,6 +57,7 @@ int parse_fidconfig(string path)
 		mapArgs.insert(std::make_pair<std::string, std::string>("-dbname", 	"" != it->second.get<string>("dbname") 		? it->second.get<string>("dbname") : "fidchain")); 
 		mapArgs.insert(std::make_pair<std::string, std::string>("-dbpasswd", 	"" != it->second.get<string>("dbpasswd") 	? it->second.get<string>("dbpasswd") : "123123")); 
 		mapArgs.insert(std::make_pair<std::string, std::string>("-dburl", 	"" != it->second.get<string>("dburl") 		? it->second.get<string>("dburl") : "127.0.0.1")); 
+		mapArgs.insert(std::make_pair<std::string, std::string>("-dbport", 	"" != it->second.get<string>("dbport") 		? it->second.get<string>("dbport") : "3306")); 
 
 		cout << "==============parse_fidconfig() - " << mapArgs["database"] << endl;
 		} else if(key == "rpc") {

@@ -29,7 +29,7 @@ int initConfig(int argc, char* argv[])
 		generate_defaultfidconfig();
 		return -1;
 	}
-	return parse_fidconfig(""); //argv[1]);
+	return parse_fidconfig(argv[1]);
 }
 
 static void HandleSIGTERM(int)
